@@ -43,3 +43,55 @@ ALTER ROLE django SET timezone TO 'UTC';
  
 
 
+Now we need to create our 'hello' django project 
+
+django-admin.py startproject django_hello_page ~/django-project
+
+
+Now we need to change 2 blocks in settings.py of our django project. There are that blocks ALLOWED_HOSTS and DATABASES.
+
+In ALLOWED_HOSTS we need to add the IP-addresses or domain names associated with your Django server. 
+We will use localhost, because going to use nginx as proxy-server
+
+In DATABASES block need to add parameters of our PostgreSQL db, to make django project connect to db
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'myproject',
+        'USER': 'myprojectuser',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
+
+
+Also add in setting.py file lines which will tell django where static file will land 
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+To apply all above changes, need to run such commands:
+
+~/django-project/manage.py makemigrations
+~/django-project/manage.py migrate
+~/django-project/manage.py collectstatic
+
+
+
+Now we will create script which will create backup of whole PostgeSQL DB
+Also will create cron job that will start every day in 00:59 UTC 
+In the end we will have archives with our DB in /tmp/pg_backup/
+
+Create backupscript.sh with backup command and put it into postgres home directory(/var/lib/postgresql):
+
+pg_basebackup --format=t -z -X fetch -D /tmp/pg_backup/backup-$(date +"%T:%A:%d:%m:%y")
+
+To create cron job need become a user 'postgres'
+Then run  < crontab -e > and add line 
+
+59 0 * * * ./backupscript.sh
+
+
+
