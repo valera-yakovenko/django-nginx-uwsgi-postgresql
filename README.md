@@ -121,7 +121,7 @@ Also u may check how nginx serve media file in ur django project
 
 Add any picture to media folder in ur project 
 
-Then go http://devops03.3dlook.me/media/<name of your picture>.png
+Then go http://devops03.3dlook.me/media/(name of your pic).png
 
 
 
