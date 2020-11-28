@@ -106,35 +106,7 @@ Then we need to configure nginx virtual host.
 
 Create file django_nginx.conf in folder /etc/nginx/site-available
 
-And fill it with content: 
-
-# the upstream component nginx needs to connect to
-upstream django {
-    
-    server 127.0.0.1:8001; # for a web port socket (we'll use this first)
-}
-# configuration of the server
-server {
-    # the port your site will be served on
-    listen      80;
-    # the domain name it will serve for
-    server_name devops03.3dlook.me; # substitute your machine's IP address or FQDN
-    charset     utf-8;
-    # max upload size
-    client_max_body_size 75M;   # adjust to taste
-    # Django media
-    location /media  {
-        alias /home/devops/django-project/django_hello_page/media;  # your Django project's media files - amend as required
-    }
-    location /static {
-        alias /home/devops/django-project/static/; # your Django project's static files - amend as required
-    }
-    # Finally, send all non-media requests to the Django server.
-    location / {
-        uwsgi_pass  django;
-        include     /home/devops/django-project/django_hello_page/uwsgi_params; # the uwsgi_params file you installed
-    }
-}
+As i configured it you take a look in repo
 
 Then create sym link from /etc/nginx/site-available/django_nginx.conf to /etc/nginx/site-enabled/django_nginx.conf
 And restart nginx
