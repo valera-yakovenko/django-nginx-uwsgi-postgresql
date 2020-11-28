@@ -25,7 +25,7 @@ SECRET_KEY = '2$hdyiw&ew73rm(k4p2*e=*ncn3%@vg7@pm8y*st_buygatsjv'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', 'devops03.3dlook.me']
 
 
 # Application definition
