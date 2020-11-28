@@ -51,7 +51,7 @@ django-admin.py startproject django_hello_page ~/django-project
 Now we need to change 2 blocks in settings.py of our django project. There are that blocks ALLOWED_HOSTS and DATABASES.
 
 In ALLOWED_HOSTS we need to add the IP-addresses or domain names associated with your Django server. 
-We will use localhost, because going to use nginx as proxy-server
+We will use localhost and our dns name, because going to use nginx as proxy-server
 
 In DATABASES block need to add parameters of our PostgreSQL db, to make django project connect to db
 
@@ -92,6 +92,61 @@ To create cron job need become a user 'postgres'
 Then run  < crontab -e > and add line 
 
 59 0 * * * ./backupscript.sh
+
+
+
+Now we going to setup Nginx to serve our django project 
+
+We will use file uwsgi_params provided by nginx, copy the content of that file from 
+https://github.com/nginx/nginx/blob/master/conf/uwsgi_params
+
+and paste into file uwsgi_params (create it beforehand), located in our project folder
+
+Then we need to configure nginx virtual host. 
+
+Create file django_nginx.conf in folder /etc/nginx/site-available
+
+And fill it with content: 
+
+# the upstream component nginx needs to connect to
+upstream django {
+    
+    server 127.0.0.1:8001; # for a web port socket (we'll use this first)
+}
+# configuration of the server
+server {
+    # the port your site will be served on
+    listen      80;
+    # the domain name it will serve for
+    server_name devops03.3dlook.me; # substitute your machine's IP address or FQDN
+    charset     utf-8;
+    # max upload size
+    client_max_body_size 75M;   # adjust to taste
+    # Django media
+    location /media  {
+        alias /home/devops/django-project/django_hello_page/media;  # your Django project's media files - amend as required
+    }
+    location /static {
+        alias /home/devops/django-project/static/; # your Django project's static files - amend as required
+    }
+    # Finally, send all non-media requests to the Django server.
+    location / {
+        uwsgi_pass  django;
+        include     /home/devops/django-project/django_hello_page/uwsgi_params; # the uwsgi_params file you installed
+    }
+}
+
+Then create sym link from /etc/nginx/site-available/django_nginx.conf to /etc/nginx/site-enabled/django_nginx.conf
+And restart nginx
+
+Then start our django project: 
+
+uwsgi --socket :8001 --module django_hello_page.wsgi &
+
+Go to browser and check django welcome page devops03.3dlook.me
+
+
+
 
 
 
