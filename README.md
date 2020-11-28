@@ -143,9 +143,13 @@ Then start our django project:
 
 uwsgi --socket :8001 --module django_hello_page.wsgi &
 
-Go to browser and check django welcome page devops03.3dlook.me
+Go to browser and check django welcome page http://devops03.3dlook.me
 
+Also u may check how nginx serve media file in ur django project 
 
+Add any picture to media folder in ur project 
+
+Then go http://devops03.3dlook.me/media/<name of your picture>.png
 
 
 
