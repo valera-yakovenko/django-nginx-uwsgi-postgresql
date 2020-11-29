@@ -3,8 +3,15 @@
 # This is a small project which consist of:
 1) Creating a django start project 
 2) Isntall and configure Nginx 
-3) Connect Nginx and django through uWSGI
-4) Install PostrgeSQL and connect it to django 
+3) Install PostrgeSQL and connect it to django
+4) Install pgAdmin web-interface
+5) Connect Nginx and django through uWSGI
+6) Configure Nginx to work with domain name
+7) Configure HTTPS to work with ssl-certs from Let's Encrypt
+8) Autumatically renew certs if they expired 
+9) Configure redirecting from HTTP to HTTPS
+10) Configure firewall to enable ssh/http/https connections
+11) Do all above stuff with Ansible magic :) 
 
 
 
@@ -107,14 +114,14 @@ Then we need to configure nginx virtual host.
 
 Create file django_nginx.conf in folder /etc/nginx/site-available
 
-As i configured it you take a look in repo
+How django_nginx.conf is look like you may take a look in repo
 
 Then create sym link from /etc/nginx/site-available/django_nginx.conf to /etc/nginx/site-enabled/django_nginx.conf
 And restart nginx
 
 # Then start our django project: 
 ```
-uwsgi --socket :8001 --module django_hello_page.wsgi &
+uwsgi --socket :8001 --module django_hello_page.wsgi 
 ```
 Go to browser and check django welcome page http://devops03.3dlook.me
 
@@ -145,3 +152,35 @@ To do this we need to do such commands
 sudo ufw allow 'Nginx Full'  # to allow http and https ports
 sudo ufw allow ssh           # to allow ssh 
 ```
+
+# Install and run pgAdmin web-interface
+Run this command (don't forget to use it inside of venv)
+```
+pip install pgadmin4
+```
+Then create file ``` config_local.py ``` in such path
+```
+djangoenv/lib/python3.6/site-packages/pgadmin4/config_local.py
+```
+And put there such content 
+```
+import os
+SERVER_MODE = False
+DATA_DIR = os.path.realpath(os.path.expanduser(u'~/.pgadmin/'))
+LOG_FILE = os.path.join(DATA_DIR, 'pgadmin4.log')
+SQLITE_PATH = os.path.join(DATA_DIR, 'pgadmin4.db')
+SESSION_DB_PATH = os.path.join(DATA_DIR, 'sessions') 
+STORAGE_DIR = os.path.join(DATA_DIR, 'storage')
+```
+After that run 
+```
+python djangoenv/lib/python3.6/site-packages/pgadmin4/setup.py
+```
+Our pgAdmin is installed and configured! 
+Now we need to it run with uwsgi
+```
+uwsgi --http-socket :8010 --chdir /home/devops/django-project/djangoenv/lib/python3.6/site-packages/pgadmin4 --manage-script-name --mount /=pgAdmin4:app 
+```
+
+
+
