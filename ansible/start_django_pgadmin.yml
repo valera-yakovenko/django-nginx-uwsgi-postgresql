@@ -1,0 +1,29 @@
+- name: Create logs directory for uwsgi
+  file:
+    state: directory
+    path: /tmp/uwsgi/
+    mode: '777'
+
+- name: Create files for uwsgi logs
+  file:
+    state: touch
+    path: /tmp/uwsgi/{{ item }}
+    mode: '777'
+  with_items:
+    - django_log.txt
+    - pg_admin_log.txt
+
+- name: Run django hello project
+  command:
+    cmd: "djangoenv/bin/uwsgi --socket :8001
+          --module django_hello_page.wsgi
+          --daemonize=/tmp/uwsgi/django_log.txt"
+    chdir: django_project/
+
+- name: Run pg admin
+  command:
+    cmd: "djangoenv/bin/uwsgi --http-socket :8010
+          --chdir /home/devops/django_project/djangoenv/lib/python3.6/site-packages/pgadmin4
+          --manage-script-name --mount /=pgAdmin4:app --daemonize=/tmp/uwsgi/pg_admin_log.txt"
+    chdir: django_project/
+

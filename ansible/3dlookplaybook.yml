@@ -1,0 +1,33 @@
+---
+- hosts: 3dlook
+  gather_facts: true
+  max_fail_percentage: 0
+  become: true
+  vars_files:
+    - vars/vars_file.yml
+  tasks:
+    - name: Prepare django project and postgresql stuff
+      include_tasks: prepare_django_postgresql.yml
+
+    - name: Create backup for PostgreSQL database
+      include_tasks: create_db_backup.yml
+
+    - name: Start django project and pgadmin
+      include_tasks: start_django_pgadmin.yml
+
+    - name: Configure Nginx and ufw
+      include_tasks: nginx_and_ufw.yml
+
+    - name: Create certs from Let's Encrypt
+      include_tasks: certs_letsencrypt.yml
+
+  handlers:
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted

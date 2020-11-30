@@ -1,0 +1,3 @@
+ansible
+ansible-lint
+apache-libcloud
