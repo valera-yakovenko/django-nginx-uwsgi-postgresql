@@ -1,0 +1,6 @@
+---
+domain_name  : devops03.3dlook.me
+db_name      : djangodb
+db_user      : django
+user_password: verysecurepassword12345
+certs_email  : jakethedogg@ukr.net

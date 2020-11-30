@@ -1,0 +1,15 @@
+- name: Copy backupscript to postgresql home folder
+  copy:
+    src: ../files/backupscript.sh
+    dest: /var/lib/postgresql/backupscript.sh
+    owner: postgres
+    group: postgres
+    mode: '0774'
+
+- name: Creates a cron job for backup db
+  cron:
+    name: run backup postgreSQL script
+    minute: "59"
+    hour: "0"
+    user: postgres
+    job: "./backupscript.sh"

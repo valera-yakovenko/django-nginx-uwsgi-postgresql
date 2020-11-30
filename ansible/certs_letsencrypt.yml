@@ -1,0 +1,11 @@
+- name: Install Certbot.
+  package: "name={{ item }} state=present"
+  loop: [ "certbot", "python-certbot-nginx" ]
+
+- name: Generate new certificate if one doesn't exist.
+  command: "certbot --nginx --noninteractive --redirect --agree-tos
+              --email {{ certs_email }}
+              -d {{ domain_name }}"
+
+- name: Make certs update automatically.
+  command: "certbot renew --dry-run"

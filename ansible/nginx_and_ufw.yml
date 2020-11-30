@@ -1,0 +1,33 @@
+- name: Start Nginx
+  service:
+    name: nginx
+    state: started
+
+- name: Create nginx virtual host
+  template:
+    src: "django_nginx.conf.j2"
+    dest: "/etc/nginx/sites-available/django_nginx.conf"
+    force: no
+
+- name: Create link to enable virtual host
+  file:
+    src: /etc/nginx/sites-available/django_nginx.conf
+    dest: /etc/nginx/sites-enabled/django_nginx.conf
+    owner: www-data
+    group: www-data
+    state: link
+  notify: Reload Nginx
+
+- name: Remove default nginx virtual host
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload Nginx
+
+- name: Enable ssh, http, https
+  ufw:
+    name: "{{ item }}"
+    rule: allow
+  with_items:
+    - Nginx Full
+    - OpenSSH

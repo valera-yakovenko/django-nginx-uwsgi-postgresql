@@ -1,0 +1,88 @@
+- name: Install needed python3 packages
+  apt: name={{ item }} update_cache=yes state=latest
+  loop: [ 'python3-pip', 'python3-dev', 'python3-venv', 'libpq-dev', 'postgresql', 'postgresql-contrib', 'nginx' ]
+
+- name: Create project folder
+  file:
+    path: /home/devops/django_project
+    state: directory
+    mode: '0755'
+
+- name: Copy requirements.txt file
+  copy:
+    src: ../requirements.txt
+    dest: /home/devops/django_project/requirements.txt
+    mode: '0644'
+
+- name: Create venv
+  pip:
+    requirements: /home/devops/django_project/requirements.txt
+    virtualenv: /home/devops/django_project/djangoenv
+    virtualenv_command: /usr/bin/python3 -m venv
+
+- name: Check if hello project exist
+  stat:
+    path: /home/devops/django_project/django_hello_page
+  register: p
+
+- name: Create hello project
+  command:
+      cmd: "djangoenv/bin/django-admin.py startproject django_hello_page /home/devops/django_project"
+      chdir: django_project/
+  when: p.stat.isdir is not defined
+
+- name: Extract secret key
+  command: "grep SECRET_KEY django_project/django_hello_page/settings.py"
+  register: secret_key
+
+- name: Set up setting.py in django project
+  template:
+    src: "setting.py.j2"
+    dest: "django_project/django_hello_page/settings.py"
+    force: yes
+
+- name: Install psycopg2 python package for ansible.postgresql
+  pip:
+    name: psycopg2
+    executable: pip3
+
+- name: Create a new postgreSQL database with name "djangodb"
+  community.general.postgresql_db:
+    name: "{{ db_name }}"
+  become_user: postgres
+
+- name: Create user django
+  community.general.postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ user_password }}"
+  become_user: postgres
+
+- name: GRANT ALL PRIVILEGES ON DATABASE djangodb
+  community.general.postgresql_privs:
+    db: "{{ db_name }}"
+    privs: ALL
+    type: database
+    role: "{{ db_user }}"
+  become_user: postgres
+
+- name: Makemigrations of django hello project
+  command: "django_project/djangoenv/bin/python3 django_project/manage.py makemigrations"
+
+- name: Migrate django hello project
+  command: "django_project/djangoenv/bin/python3 django_project/manage.py migrate"
+
+- name: Collect static files for django hello project
+  command:
+    cmd: "django_project/djangoenv/bin/python3 django_project/manage.py collectstatic"
+    stdin: "yes"
+
+- name: Create config_local.py for pgadmin
+  copy:
+    src: ../files/config_local.py
+    dest: django_project/djangoenv/lib/python3.6/site-packages/pgadmin4/config_local.py
+    mode: '770'
+
+- name: Setup pg admin
+  command:
+    cmd: "djangoenv/bin/python3 djangoenv/lib/python3.6/site-packages/pgadmin4/setup.py"
+    chdir: django_project/
