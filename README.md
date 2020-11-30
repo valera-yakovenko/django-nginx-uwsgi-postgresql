@@ -26,7 +26,7 @@ python3 -m venv djangoenv
 ```
 And add this venv to .gitignore
 
-Activate our venv and isntall all requirements from txt file (in shell script file)
+Activate our venv and install all requirements from txt file (in shell script file)
 
 # Then we need to configure PostgreSQL db to make it work with django 
 
@@ -54,7 +54,7 @@ ALTER ROLE django SET timezone TO 'UTC';
 django-admin.py startproject django_hello_page ~/django-project
 ```
 
-Now we need to change 2 blocks in settings.py of our django project. There are that blocks ALLOWED_HOSTS and DATABASES.
+Now we need to change 2 blocks in settings.py of our django project. That blocks are ALLOWED_HOSTS and DATABASES.
 
 In ALLOWED_HOSTS we need to add the IP-addresses or domain names associated with your Django server. 
 We will use localhost and our dns name, because going to use nginx as proxy-server
@@ -182,5 +182,8 @@ Now we need to it run with uwsgi
 uwsgi --http-socket :8010 --chdir /home/devops/django-project/djangoenv/lib/python3.6/site-packages/pgadmin4 --manage-script-name --mount /=pgAdmin4:app --daemonize=/tmp/uwsgi/pg_admin_log.txt
 ```
 
-
+# Ansible
+To use ansible: enter to ```ansible``` folder run virtualenv.sh script and activate venv.
+Then substitute values in vars/vars_file and inventory file
+And run playbook
 
