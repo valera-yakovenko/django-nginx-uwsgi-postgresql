@@ -121,7 +121,7 @@ And restart nginx
 
 # Then start our django project: 
 ```
-uwsgi --socket :8001 --module django_hello_page.wsgi 
+uwsgi --socket :8001 --module django_hello_page.wsgi --daemonize=/tmp/uwsgi/django_log.txt
 ```
 Go to browser and check django welcome page http://devops03.3dlook.me
 
@@ -179,7 +179,7 @@ python djangoenv/lib/python3.6/site-packages/pgadmin4/setup.py
 Our pgAdmin is installed and configured! 
 Now we need to it run with uwsgi
 ```
-uwsgi --http-socket :8010 --chdir /home/devops/django-project/djangoenv/lib/python3.6/site-packages/pgadmin4 --manage-script-name --mount /=pgAdmin4:app 
+uwsgi --http-socket :8010 --chdir /home/devops/django-project/djangoenv/lib/python3.6/site-packages/pgadmin4 --manage-script-name --mount /=pgAdmin4:app --daemonize=/tmp/uwsgi/pg_admin_log.txt
 ```
 
 
